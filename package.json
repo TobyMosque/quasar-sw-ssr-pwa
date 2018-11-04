@@ -14,7 +14,9 @@
     "axios": "^0.18.0",
     "pouchdb": "^7.0.0",
     "pouchdb-find": "^7.0.0",
-    "relational-pouch": "^3.1.0"
+    "relational-pouch": "^3.1.0",
+    "express-pouchdb": "^4.1.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.1",
@@ -28,8 +30,6 @@
     "eslint-plugin-standard": "^3.0.1",
     "eslint-plugin-vue": "^4.3.0",
     "quasar-cli": "^0.17.0",
-    "express-pouchdb": "^4.1.0",
-    "uuid": "^3.3.2",
     "strip-ansi": "=3.0.1"
   },
   "engines": {
