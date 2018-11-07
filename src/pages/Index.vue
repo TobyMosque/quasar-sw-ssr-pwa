@@ -7,10 +7,15 @@
 </style>
 
 <script>
+import indexModule from '../store/pages/index'
 export default {
   name: 'PageIndex',
-  created: function () {
-    console.log(this.$db)
+  preFetch ({ store, ssrContext }) {
+    if (!indexModule.registered) {
+      indexModule.registered = true
+      store.registerModule('index', indexModule)
+    }
+    return store.dispatch('index/init')
   }
 }
 </script>

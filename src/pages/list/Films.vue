@@ -12,7 +12,7 @@
       row-key="name"
     >
       <template slot="top-left" slot-scope="props">
-        <q-btn :to="{ name: 'films-create' }" icon="create" color="primary">New Film</q-btn>
+        <q-btn to="films/create" icon="create" color="primary">New Film</q-btn>
         <q-search class="q-pl-sm" hide-underline v-model="filter" />
       </template>
       <template slot="top-right" slot-scope="props">
@@ -44,7 +44,7 @@
             </q-list>
           </q-card-main>
           <q-card-actions>
-            <q-btn flat color="primary" label="Edit" icon="edit" :to="{ name: 'films-edit', params: { id: props.row.id } }" />
+            <q-btn flat color="primary" label="Edit" icon="edit" :to="'films/' + props.row.id" />
             <q-btn flat color="negative" label="Delete" icon="delete" @click="deleteFilm(props.row)" />
           </q-card-actions>
         </q-card>
@@ -57,14 +57,19 @@
 </style>
 
 <script>
+import filmsList from '../../store/pages/list/films'
+import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
+  preFetch ({ store, ssrContext }) {
+    if (!filmsList.registered) {
+      filmsList.registered = true
+      store.registerModule('filmsList', filmsList)
+    }
+    return store.dispatch('filmsList/init')
+  },
   data () {
     return {
-      filter: '',
-      data: [],
-      rowsPerPage: [6, 12, 24, 36, 48, 72, 96],
-      pagination: { rowsPerPage: 12 },
       columns: [
         {
           name: 'title',
@@ -95,31 +100,32 @@ export default {
     }
   },
   computed: {
+    filter: {
+      get () { return this.$store.state.filmsList.filter },
+      set (value) { this.$store.commit('filmsList/filter', value) }
+    },
+    data: {
+      get () { return this.$store.state.filmsList.data },
+      set (value) { this.$store.commit('filmsList/data', value) }
+    },
+    rowsPerPage: {
+      get () { return this.$store.state.filmsList.rowsPerPage },
+      set (value) { this.$store.commit('filmsList/rowsPerPage', value) }
+    },
+    pagination: {
+      get () { return this.$store.state.filmsList.pagination },
+      set (value) { this.$store.commit('filmsList/pagination', value) }
+    },
     visibleColumns: {
-      get () { return this.$store.state.columns.films },
-      set (value) { this.$store.commit('columns/films', value) }
+      get () { return this.$store.state.filmsList.visibleColumns },
+      set (value) { this.$store.commit('filmsList/visibleColumns', value) }
     }
   },
   methods: {
-    init () {
-      this.$db.rel.find('films').then(({ films }) => {
-        this.data = films
-      })
-    },
-    deleteFilm (film) {
-      this.$q.dialog({
-        title: 'Delete Film',
-        message: `Are you sure to delete the film ${film.title}?`,
-        ok: true,
-        cancel: true
-      }).then(() => {
-        return this.$db.rel.del('film', film)
-      }).then(() => {
-        let index = this.data.findIndex(item => item.id === film.id)
-        this.data.splice(index, 1)
-        this.$q.notify({ message: `Film ${film.title} deleted!`, color: 'primary' })
-      })
-    }
+    ...mapActions('filmsList', {
+      init: 'init',
+      deleteFilm: 'deleteFilm'
+    })
   }
 }
 </script>

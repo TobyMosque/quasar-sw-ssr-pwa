@@ -61,39 +61,20 @@
 </style>
 
 <script>
-import { uid } from 'quasar'
+import speciesEdit from '../../store/pages/edit/species'
+import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
+  preFetch ({ store, currentRoute, ssrContext }) {
+    if (!speciesEdit.registered) {
+      speciesEdit.registered = true
+      store.registerModule('speciesEdit', speciesEdit)
+    }
+    return store.dispatch('speciesEdit/init', currentRoute.params.id)
+  },
   data () {
     var that = this
     return {
-      data: {
-        id: uid(),
-        rev: '',
-        name: '',
-        classification: '',
-        designation: '',
-        average_height: '',
-        average_lifespan: '',
-        eye_colors: '',
-        hair_colors: '',
-        skin_colors: '',
-        language: '',
-        homeworld: '',
-        people: [],
-        films: [],
-        created: null,
-        edited: null
-      },
-      options: {
-        people: [],
-        films: [],
-        planets: []
-      },
-      selected: {
-        people: [],
-        films: []
-      },
       after: {
         homeworld: [{
           icon: 'edit',
@@ -112,46 +93,32 @@ export default {
     }
   },
   computed: {
+    data: {
+      get () { return this.$store.state.speciesEdit.data },
+      set (value) { this.$store.commit('speciesEdit/data', value) }
+    },
+    options: {
+      get () { return this.$store.state.speciesEdit.options },
+      set (value) { this.$store.commit('speciesEdit/options', value) }
+    },
+    selected: {
+      get () { return this.$store.state.speciesEdit.selected },
+      set (value) { this.$store.commit('speciesEdit/selected', value) }
+    },
     created: {
-      get () { return this.data.created ? new Date(this.data.created) : null },
-      set (value) { this.data.created = value ? value.toISOString() : null }
+      get () { return this.$store.getters['speciesEdit/created'] },
+      set (value) { this.$store.commit('speciesEdit/created', value ? value.toISOString() : null) }
     },
     edited: {
-      get () { return this.data.edited ? new Date(this.data.edited) : null },
-      set (value) { this.data.edited = value ? value.toISOString() : null }
+      get () { return this.$store.getters['speciesEdit/edited'] },
+      set (value) { this.$store.commit('speciesEdit/edited', value ? value.toISOString() : null) }
     }
   },
   methods: {
-    init () {
-      this.$db.rel.find('person').then(({ people }) => {
-        this.options.people = people.map(person => ({ value: person.id, label: person.name }))
-      })
-      this.$db.rel.find('film').then(({ films }) => {
-        this.options.films = films.map(film => ({ value: film.id, label: film.title }))
-      })
-      this.$db.rel.find('planet').then(({ planets }) => {
-        this.options.planets = planets.map(planet => ({ value: planet.id, label: planet.name }))
-      })
-      if (this.$route.params.id) {
-        this.$db.rel.find('species', [ this.$route.params.id ]).then(({ species }) => {
-          if (species[0]) {
-            this.$set(this, 'data', species[0])
-          } else {
-            this.$router.replace({ name: 'not_found' })
-          }
-        })
-      }
-    },
-    saveSpecies () {
-      if (!this.created) {
-        this.created = new Date()
-      }
-      this.edited = new Date()
-      this.$db.rel.save('species', this.data).then(() => {
-        this.$q.notify({ message: `Species ${this.data.name} updated!`, color: 'primary' })
-        this.$router.go(-1)
-      })
-    }
+    ...mapActions('speciesEdit', {
+      init: 'init',
+      saveSpecies: 'saveSpecies'
+    })
   }
 }
 </script>

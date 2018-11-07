@@ -53,99 +53,51 @@
   </q-page>
 </template>
 
-<style>
-</style>
+<style></style>
 
 <script>
-import { uid } from 'quasar'
+import filmEdit from '../../store/pages/edit/film'
+import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
-  data () {
-    return {
-      data: {
-        id: uid(),
-        rev: '',
-        title: '',
-        episode_id: 0,
-        opening_crawl: '',
-        director: '',
-        producer: '',
-        release_date: new Date(),
-        species: [],
-        starships: [],
-        vehicles: [],
-        characters: [],
-        planets: [],
-        created: null,
-        edited: null
-      },
-      options: {
-        species: [],
-        starships: [],
-        vehicles: [],
-        characters: [],
-        planets: []
-      },
-      selected: {
-        species: [],
-        starships: [],
-        vehicles: [],
-        characters: [],
-        planets: []
-      }
+  preFetch ({ store, currentRoute, ssrContext }) {
+    if (!filmEdit.registered) {
+      filmEdit.registered = true
+      store.registerModule('filmEdit', filmEdit)
     }
+    return store.dispatch('filmEdit/init', currentRoute.params.id)
   },
   computed: {
+    data: {
+      get () { return this.$store.state.filmEdit.data },
+      set (value) { this.$store.commit('filmEdit/data', value) }
+    },
+    options: {
+      get () { return this.$store.state.filmEdit.options },
+      set (value) { this.$store.commit('filmEdit/options', value) }
+    },
+    selected: {
+      get () { return this.$store.state.filmEdit.selected },
+      set (value) { this.$store.commit('filmEdit/selected', value) }
+    },
     release_date: {
-      get () { return this.data.release_date ? new Date(this.data.release_date) : null },
-      set (value) { this.data.release_date = value ? value.toISOString() : null }
+      get () { return this.$store.getters['filmEdit/release_date'] },
+      set (value) { this.$store.commit('filmEdit/release_date', value ? value.toISOString() : null) }
     },
     created: {
-      get () { return this.data.created ? new Date(this.data.created) : null },
-      set (value) { this.data.created = value ? value.toISOString() : null }
+      get () { return this.$store.getters['filmEdit/created'] },
+      set (value) { this.$store.commit('filmEdit/created', value ? value.toISOString() : null) }
     },
     edited: {
-      get () { return this.data.edited ? new Date(this.data.edited) : null },
-      set (value) { this.data.edited = value ? value.toISOString() : null }
+      get () { return this.$store.getters['filmEdit/edited'] },
+      set (value) { this.$store.commit('filmEdit/edited', value ? value.toISOString() : null) }
     }
   },
   methods: {
-    init () {
-      this.$db.rel.find('species').then(({ species }) => {
-        this.options.species = species.map(species => ({ value: species.id, label: species.name }))
-      })
-      this.$db.rel.find('starship').then(({ starships }) => {
-        this.options.starships = starships.map(starship => ({ value: starship.id, label: starship.name }))
-      })
-      this.$db.rel.find('vehicle').then(({ vehicles }) => {
-        this.options.vehicles = vehicles.map(vehicle => ({ value: vehicle.id, label: vehicle.name }))
-      })
-      this.$db.rel.find('person').then(({ people }) => {
-        this.options.characters = people.map(person => ({ value: person.id, label: person.name }))
-      })
-      this.$db.rel.find('planet').then(({ planets }) => {
-        this.options.planets = planets.map(planet => ({ value: planet.id, label: planet.name }))
-      })
-      if (this.$route.params.id) {
-        this.$db.rel.find('films', [ this.$route.params.id ]).then(({ films }) => {
-          if (films[0]) {
-            this.$set(this, 'data', films[0])
-          } else {
-            this.$router.replace({ name: 'not_found' })
-          }
-        })
-      }
-    },
-    saveFilm () {
-      if (!this.created) {
-        this.created = new Date()
-      }
-      this.edited = new Date()
-      this.$db.rel.save('film', this.data).then(() => {
-        this.$q.notify({ message: `Film ${this.data.film} updated!`, color: 'primary' })
-        this.$router.go(-1)
-      })
-    }
+    ...mapActions('filmEdit', {
+      init: 'init',
+      saveFilm: 'saveFilm'
+    })
   }
 }
 </script>

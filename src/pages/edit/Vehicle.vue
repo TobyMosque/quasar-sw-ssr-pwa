@@ -64,78 +64,44 @@
 </style>
 
 <script>
-import { uid } from 'quasar'
+import vehicleEdit from '../../store/pages/edit/vehicle'
+import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
-  data () {
-    return {
-      data: {
-        id: uid(),
-        rev: '',
-        name: '',
-        model: '',
-        vehicle_class: '',
-        manufacturer: '',
-        cost_in_credits: '',
-        length: '',
-        crew: '',
-        passengers: '',
-        max_atmosphering_speed: '',
-        cargo_capacity: '',
-        consumables: '',
-        pilots: [],
-        films: [],
-        created: null,
-        edited: null
-      },
-      options: {
-        pilots: [],
-        films: []
-      },
-      selected: {
-        pilots: [],
-        films: []
-      }
+  preFetch ({ store, currentRoute, ssrContext }) {
+    if (!vehicleEdit.registered) {
+      vehicleEdit.registered = true
+      store.registerModule('vehicleEdit', vehicleEdit)
     }
+    return store.dispatch('vehicleEdit/init', currentRoute.params.id)
   },
   computed: {
+    data: {
+      get () { return this.$store.state.vehicleEdit.data },
+      set (value) { this.$store.commit('vehicleEdit/data', value) }
+    },
+    options: {
+      get () { return this.$store.state.vehicleEdit.options },
+      set (value) { this.$store.commit('vehicleEdit/options', value) }
+    },
+    selected: {
+      get () { return this.$store.state.vehicleEdit.selected },
+      set (value) { this.$store.commit('vehicleEdit/selected', value) }
+    },
     created: {
-      get () { return this.data.created ? new Date(this.data.created) : null },
-      set (value) { this.data.created = value ? value.toISOString() : null }
+      get () { return this.$store.getters['vehicleEdit/created'] },
+      set (value) { this.$store.commit('vehicleEdit/created', value ? value.toISOString() : null) }
     },
     edited: {
-      get () { return this.data.edited ? new Date(this.data.edited) : null },
-      set (value) { this.data.edited = value ? value.toISOString() : null }
+      get () { return this.$store.getters['vehicleEdit/edited'] },
+      set (value) { this.$store.commit('vehicleEdit/edited', value ? value.toISOString() : null) }
     }
   },
   methods: {
-    init () {
-      this.$db.rel.find('person').then(({ people }) => {
-        this.options.pilots = people.map(person => ({ value: person.id, label: person.name }))
-      })
-      this.$db.rel.find('film').then(({ films }) => {
-        this.options.films = films.map(film => ({ value: film.id, label: film.title }))
-      })
-      if (this.$route.params.id) {
-        this.$db.rel.find('vehicle', [ this.$route.params.id ]).then(({ vehicles }) => {
-          if (vehicles[0]) {
-            this.$set(this, 'data', vehicles[0])
-          } else {
-            this.$router.replace({ name: 'not_found' })
-          }
-        })
-      }
-    },
-    saveVehicle () {
-      if (!this.created) {
-        this.created = new Date()
-      }
-      this.edited = new Date()
-      this.$db.rel.save('vehicle', this.data).then(() => {
-        this.$q.notify({ message: `Vehicle ${this.data.name} updated!`, color: 'primary' })
-        this.$router.go(-1)
-      })
-    }
+    ...mapActions('vehicleEdit', {
+      init: 'init',
+      saveVehicle: 'saveVehicle'
+    })
   }
 }
 </script>

@@ -12,7 +12,7 @@
       row-key="name"
     >
       <template slot="top-left" slot-scope="props">
-        <q-btn :to="{ name: 'planets-create' }" icon="create" color="primary">New Planet</q-btn>
+        <q-btn to="planets/create" icon="create" color="primary">New Planet</q-btn>
         <q-search class="q-pl-sm" hide-underline v-model="filter" />
       </template>
       <template slot="top-right" slot-scope="props">
@@ -44,7 +44,7 @@
             </q-list>
           </q-card-main>
           <q-card-actions>
-            <q-btn flat color="primary" label="Edit" icon="edit" :to="{ name: 'planets-edit', params: { id: props.row.id } }" />
+            <q-btn flat color="primary" label="Edit" icon="edit" :to="'planets/' + props.row.id" />
             <q-btn flat color="negative" label="Delete" icon="delete" @click="deletePlanet(props.row)" />
           </q-card-actions>
         </q-card>
@@ -57,14 +57,19 @@
 </style>
 
 <script>
+import planetsList from '../../store/pages/list/planets'
+import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
+  preFetch ({ store, ssrContext }) {
+    if (!planetsList.registered) {
+      planetsList.registered = true
+      store.registerModule('planetsList', planetsList)
+    }
+    return store.dispatch('planetsList/init')
+  },
   data () {
     return {
-      filter: '',
-      data: [],
-      rowsPerPage: [6, 12, 24, 36, 48, 72, 96],
-      pagination: { rowsPerPage: 12 },
       columns: [
         {
           name: 'name',
@@ -115,31 +120,32 @@ export default {
     }
   },
   computed: {
+    filter: {
+      get () { return this.$store.state.planetsList.filter },
+      set (value) { this.$store.commit('planetsList/filter', value) }
+    },
+    data: {
+      get () { return this.$store.state.planetsList.data },
+      set (value) { this.$store.commit('planetsList/data', value) }
+    },
+    rowsPerPage: {
+      get () { return this.$store.state.planetsList.rowsPerPage },
+      set (value) { this.$store.commit('planetsList/rowsPerPage', value) }
+    },
+    pagination: {
+      get () { return this.$store.state.planetsList.pagination },
+      set (value) { this.$store.commit('planetsList/pagination', value) }
+    },
     visibleColumns: {
-      get () { return this.$store.state.columns.planets },
-      set (value) { this.$store.commit('columns/planets', value) }
+      get () { return this.$store.state.planetsList.visibleColumns },
+      set (value) { this.$store.commit('planetsList/visibleColumns', value) }
     }
   },
   methods: {
-    init () {
-      this.$db.rel.find('planets').then(({ planets }) => {
-        this.data = planets
-      })
-    },
-    deletePlanets (planet) {
-      this.$q.dialog({
-        title: 'Delete Planet',
-        message: `Are you sure to delete the planet ${planet.name}?`,
-        ok: true,
-        cancel: true
-      }).then(() => {
-        return this.$db.rel.del('planet', planet)
-      }).then(() => {
-        let index = this.data.findIndex(item => item.id === planet.id)
-        this.data.splice(index, 1)
-        this.$q.notify({ message: `Planet ${planet.name} deleted!`, color: 'primary' })
-      })
-    }
+    ...mapActions('planetsList', {
+      init: 'init',
+      deletePlanet: 'deletePlanet'
+    })
   }
 }
 </script>

@@ -58,37 +58,20 @@
 </style>
 
 <script>
-import { uid } from 'quasar'
+import planetEdit from '../../store/pages/edit/planet'
+import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
+  preFetch ({ store, currentRoute, ssrContext }) {
+    if (!planetEdit.registered) {
+      planetEdit.registered = true
+      store.registerModule('planetEdit', planetEdit)
+    }
+    return store.dispatch('planetEdit/init', currentRoute.params.id)
+  },
   data () {
     var that = this
     return {
-      data: {
-        id: uid(),
-        rev: '',
-        name: '',
-        diameter: '',
-        rotation_period: '',
-        orbital_period: '',
-        gravity: '',
-        population: '',
-        climate: '',
-        terrain: '',
-        surface_water: '',
-        residents: [],
-        films: [],
-        created: null,
-        edited: null
-      },
-      options: {
-        residents: [],
-        films: []
-      },
-      selected: {
-        residents: [],
-        films: []
-      },
       after: {
         homeworld: [{
           icon: 'edit',
@@ -107,43 +90,32 @@ export default {
     }
   },
   computed: {
+    data: {
+      get () { return this.$store.state.planetEdit.data },
+      set (value) { this.$store.commit('planetEdit/data', value) }
+    },
+    options: {
+      get () { return this.$store.state.planetEdit.options },
+      set (value) { this.$store.commit('planetEdit/options', value) }
+    },
+    selected: {
+      get () { return this.$store.state.planetEdit.selected },
+      set (value) { this.$store.commit('planetEdit/selected', value) }
+    },
     created: {
-      get () { return this.data.created ? new Date(this.data.created) : null },
-      set (value) { this.data.created = value ? value.toISOString() : null }
+      get () { return this.$store.getters['planetEdit/created'] },
+      set (value) { this.$store.commit('planetEdit/created', value ? value.toISOString() : null) }
     },
     edited: {
-      get () { return this.data.edited ? new Date(this.data.edited) : null },
-      set (value) { this.data.edited = value ? value.toISOString() : null }
+      get () { return this.$store.getters['planetEdit/edited'] },
+      set (value) { this.$store.commit('planetEdit/edited', value ? value.toISOString() : null) }
     }
   },
   methods: {
-    init () {
-      this.$db.rel.find('person').then(({ people }) => {
-        this.options.residents = people.map(person => ({ value: person.id, label: person.name }))
-      })
-      this.$db.rel.find('film').then(({ films }) => {
-        this.options.films = films.map(film => ({ value: film.id, label: film.title }))
-      })
-      if (this.$route.params.id) {
-        this.$db.rel.find('planet', [ this.$route.params.id ]).then(({ planets }) => {
-          if (planets[0]) {
-            this.$set(this, 'data', planets[0])
-          } else {
-            this.$router.replace({ name: 'not_found' })
-          }
-        })
-      }
-    },
-    savePlanet () {
-      if (!this.created) {
-        this.created = new Date()
-      }
-      this.edited = new Date()
-      this.$db.rel.save('planet', this.data).then(() => {
-        this.$q.notify({ message: `Planet ${this.data.name} updated!`, color: 'primary' })
-        this.$router.go(-1)
-      })
-    }
+    ...mapActions('planetEdit', {
+      init: 'init',
+      savePlanet: 'savePlanet'
+    })
   }
 }
 </script>

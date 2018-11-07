@@ -12,7 +12,7 @@
       row-key="name"
     >
       <template slot="top-left" slot-scope="props">
-        <q-btn :to="{ name: 'people-create' }" icon="create" color="primary">New Person</q-btn>
+        <q-btn to="people/create" icon="create" color="primary">New Person</q-btn>
         <q-search class="q-pl-sm" hide-underline v-model="filter" />
       </template>
       <template slot="top-right" slot-scope="props">
@@ -44,7 +44,7 @@
             </q-list>
           </q-card-main>
           <q-card-actions>
-            <q-btn flat color="primary" label="Edit" icon="edit" :to="{ name: 'people-edit', params: { id: props.row.id } }" />
+            <q-btn flat color="primary" label="Edit" icon="edit" :to="'people/' + props.row.id" />
             <q-btn flat color="negative" label="Delete" icon="delete" @click="deletePerson(props.row)" />
           </q-card-actions>
         </q-card>
@@ -57,16 +57,20 @@
 </style>
 
 <script>
+import peopleList from '../../store/pages/list/people'
+import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
+  preFetch ({ store, ssrContext }) {
+    if (!peopleList.registered) {
+      peopleList.registered = true
+      store.registerModule('peopleList', peopleList)
+    }
+    return store.dispatch('peopleList/init')
+  },
   data () {
     var that = this
     return {
-      filter: '',
-      data: [],
-      planets: [],
-      rowsPerPage: [6, 12, 24, 36, 48, 72, 96],
-      pagination: { rowsPerPage: 12 },
       columns: [
         {
           name: 'name',
@@ -117,37 +121,36 @@ export default {
     }
   },
   computed: {
+    filter: {
+      get () { return this.$store.state.peopleList.filter },
+      set (value) { this.$store.commit('peopleList/filter', value) }
+    },
+    data: {
+      get () { return this.$store.state.peopleList.data },
+      set (value) { this.$store.commit('peopleList/data', value) }
+    },
+    planets: {
+      get () { return this.$store.state.peopleList.planets },
+      set (value) { this.$store.commit('peopleList/planets', value) }
+    },
+    rowsPerPage: {
+      get () { return this.$store.state.peopleList.rowsPerPage },
+      set (value) { this.$store.commit('peopleList/rowsPerPage', value) }
+    },
+    pagination: {
+      get () { return this.$store.state.peopleList.pagination },
+      set (value) { this.$store.commit('peopleList/pagination', value) }
+    },
     visibleColumns: {
-      get () { return this.$store.state.columns.people },
-      set (value) { this.$store.commit('columns/people', value) }
+      get () { return this.$store.state.peopleList.visibleColumns },
+      set (value) { this.$store.commit('peopleList/visibleColumns', value) }
     }
   },
   methods: {
-    init () {
-      this.$db.rel.find('person').then(({ people }) => {
-        this.data = people
-        return this.$db.rel.find('planet')
-      }).then(({ planets }) => {
-        this.planets = {}
-        planets.forEach((planet) => {
-          this.planets[planet.id] = planet.name
-        })
-      })
-    },
-    deletePerson (person) {
-      this.$q.dialog({
-        title: 'Delete Person',
-        message: `Are you sure to delete the person ${person.name}?`,
-        ok: true,
-        cancel: true
-      }).then(() => {
-        return this.$db.rel.del('person', person)
-      }).then(() => {
-        let index = this.data.findIndex(item => item.id === person.id)
-        this.data.splice(index, 1)
-        this.$q.notify({ message: `Person ${person.name} deleted!`, color: 'primary' })
-      })
-    }
+    ...mapActions('peopleList', {
+      init: 'init',
+      deletePerson: 'deletePerson'
+    })
   }
 }
 </script>

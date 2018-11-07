@@ -70,80 +70,44 @@
 </style>
 
 <script>
-import { uid } from 'quasar'
+import starshipEdit from '../../store/pages/edit/starship'
+import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
-  data () {
-    return {
-      data: {
-        id: uid(),
-        rev: '',
-        name: '',
-        model: '',
-        starship_class: '',
-        manufacturer: '',
-        cost_in_credits: '',
-        length: '',
-        crew: '',
-        passengers: '',
-        max_atmosphering_speed: '',
-        hyperdrive_rating: '',
-        MGLT: '',
-        cargo_capacity: '',
-        consumables: '',
-        pilots: [],
-        films: [],
-        created: null,
-        edited: null
-      },
-      options: {
-        pilots: [],
-        films: []
-      },
-      selected: {
-        pilots: [],
-        films: []
-      }
+  preFetch ({ store, currentRoute, ssrContext }) {
+    if (!starshipEdit.registered) {
+      starshipEdit.registered = true
+      store.registerModule('starshipEdit', starshipEdit)
     }
+    return store.dispatch('starshipEdit/init', currentRoute.params.id)
   },
   computed: {
+    data: {
+      get () { return this.$store.state.starshipEdit.data },
+      set (value) { this.$store.commit('starshipEdit/data', value) }
+    },
+    options: {
+      get () { return this.$store.state.starshipEdit.options },
+      set (value) { this.$store.commit('starshipEdit/options', value) }
+    },
+    selected: {
+      get () { return this.$store.state.starshipEdit.selected },
+      set (value) { this.$store.commit('starshipEdit/selected', value) }
+    },
     created: {
-      get () { return this.data.created ? new Date(this.data.created) : null },
-      set (value) { this.data.created = value ? value.toISOString() : null }
+      get () { return this.$store.getters['starshipEdit/created'] },
+      set (value) { this.$store.commit('starshipEdit/created', value ? value.toISOString() : null) }
     },
     edited: {
-      get () { return this.data.edited ? new Date(this.data.edited) : null },
-      set (value) { this.data.edited = value ? value.toISOString() : null }
+      get () { return this.$store.getters['starshipEdit/edited'] },
+      set (value) { this.$store.commit('starshipEdit/edited', value ? value.toISOString() : null) }
     }
   },
   methods: {
-    init () {
-      this.$db.rel.find('person').then(({ people }) => {
-        this.options.pilots = people.map(person => ({ value: person.id, label: person.name }))
-      })
-      this.$db.rel.find('film').then(({ films }) => {
-        this.options.films = films.map(film => ({ value: film.id, label: film.title }))
-      })
-      if (this.$route.params.id) {
-        this.$db.rel.find('starship', [ this.$route.params.id ]).then(({ starships }) => {
-          if (starships[0]) {
-            this.$set(this, 'data', starships[0])
-          } else {
-            this.$router.replace({ name: 'not_found' })
-          }
-        })
-      }
-    },
-    saveStarship () {
-      if (!this.created) {
-        this.created = new Date()
-      }
-      this.edited = new Date()
-      this.$db.rel.save('starship', this.data).then(() => {
-        this.$q.notify({ message: `Starship ${this.data.name} updated!`, color: 'primary' })
-        this.$router.go(-1)
-      })
-    }
+    ...mapActions('starshipEdit', {
+      init: 'init',
+      saveStarship: 'saveStarship'
+    })
   }
 }
 </script>

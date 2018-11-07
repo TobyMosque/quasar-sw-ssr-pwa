@@ -12,92 +12,92 @@ const routes = [
       {
         name: 'people-create',
         path: 'people/create',
-        component: () => import('pages/Person.vue')
+        component: () => import('pages/Edit/Person.vue')
       },
       {
         name: 'films-create',
         path: 'films/create',
-        component: () => import('pages/Film.vue')
+        component: () => import('pages/Edit/Film.vue')
       },
       {
         name: 'starships-create',
         path: 'starships/create',
-        component: () => import('pages/Starship.vue')
+        component: () => import('pages/Edit/Starship.vue')
       },
       {
         name: 'vehicles-create',
         path: 'vehicles/create',
-        component: () => import('pages/Vehicle.vue')
+        component: () => import('pages/Edit/Vehicle.vue')
       },
       {
         name: 'species-create',
         path: 'species/create',
-        component: () => import('pages/SpeciesEdit.vue')
+        component: () => import('pages/Edit/Species.vue')
       },
       {
         name: 'planets-create',
         path: 'planets/create',
-        component: () => import('pages/Planet.vue')
+        component: () => import('pages/Edit/Planet.vue')
       },
       {
         name: 'people-edit',
         path: 'people/:id',
-        component: () => import('pages/Person.vue')
+        component: () => import('pages/Edit/Person.vue')
       },
       {
         name: 'films-edit',
         path: 'films/:id',
-        component: () => import('pages/Film.vue')
+        component: () => import('pages/Edit/Film.vue')
       },
       {
         name: 'starships-edit',
         path: 'starships/:id',
-        component: () => import('pages/Starship.vue')
+        component: () => import('pages/Edit/Starship.vue')
       },
       {
         name: 'vehicles-edit',
         path: 'vehicles/:id',
-        component: () => import('pages/Vehicle.vue')
+        component: () => import('pages/Edit/Vehicle.vue')
       },
       {
         name: 'species-edit',
         path: 'species/:id',
-        component: () => import('pages/SpeciesEdit.vue')
+        component: () => import('pages/Edit/Species.vue')
       },
       {
         name: 'planets-edit',
         path: 'planets/:id',
-        component: () => import('pages/Planet.vue')
+        component: () => import('pages/Edit/Planet.vue')
       },
       {
         name: 'people',
         path: 'people',
-        component: () => import('pages/People.vue')
+        component: () => import('pages/List/People.vue')
       },
       {
         name: 'films',
         path: 'films/',
-        component: () => import('pages/Films.vue')
+        component: () => import('pages/List/Films.vue')
       },
       {
         name: 'starships',
         path: 'starships',
-        component: () => import('pages/Starships.vue')
+        component: () => import('pages/List/Starships.vue')
       },
       {
         name: 'vehicles',
         path: 'vehicles',
-        component: () => import('pages/Vehicles.vue')
+        component: () => import('pages/List/Vehicles.vue')
       },
       {
         name: 'species',
         path: 'species',
-        component: () => import('pages/Species.vue')
+        component: () => import('pages/List/Species.vue')
       },
       {
         name: 'planets',
         path: 'planets',
-        component: () => import('pages/Planets.vue')
+        component: () => import('pages/List/Planets.vue')
       }
     ]
   }

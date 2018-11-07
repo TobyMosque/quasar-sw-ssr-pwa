@@ -60,44 +60,20 @@
 </style>
 
 <script>
-import { uid } from 'quasar'
+import personEdit from '../../store/pages/edit/person'
+import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
+  preFetch ({ store, currentRoute, ssrContext }) {
+    if (!personEdit.registered) {
+      personEdit.registered = true
+      store.registerModule('personEdit', personEdit)
+    }
+    return store.dispatch('personEdit/init', currentRoute.params.id)
+  },
   data () {
     var that = this
     return {
-      data: {
-        id: uid(),
-        rev: '',
-        name: '',
-        birth_year: '',
-        eye_color: '',
-        gender: '',
-        hair_color: '',
-        height: '',
-        mass: '',
-        skin_color: '',
-        homeworld: '',
-        films: [],
-        species: [],
-        starships: [],
-        vehicles: [],
-        created: null,
-        edited: null
-      },
-      options: {
-        films: [],
-        species: [],
-        starships: [],
-        vehicles: [],
-        planets: []
-      },
-      selected: {
-        films: [],
-        species: [],
-        starships: [],
-        vehicles: []
-      },
       after: {
         homeworld: [{
           icon: 'edit',
@@ -116,52 +92,32 @@ export default {
     }
   },
   computed: {
+    data: {
+      get () { return this.$store.state.personEdit.data },
+      set (value) { this.$store.commit('personEdit/data', value) }
+    },
+    options: {
+      get () { return this.$store.state.personEdit.options },
+      set (value) { this.$store.commit('personEdit/options', value) }
+    },
+    selected: {
+      get () { return this.$store.state.personEdit.selected },
+      set (value) { this.$store.commit('personEdit/selected', value) }
+    },
     created: {
-      get () { return this.data.created ? new Date(this.data.created) : null },
-      set (value) { this.data.created = value ? value.toISOString() : null }
+      get () { return this.$store.getters['personEdit/created'] },
+      set (value) { this.$store.commit('personEdit/created', value ? value.toISOString() : null) }
     },
     edited: {
-      get () { return this.data.edited ? new Date(this.data.edited) : null },
-      set (value) { this.data.edited = value ? value.toISOString() : null }
+      get () { return this.$store.getters['personEdit/edited'] },
+      set (value) { this.$store.commit('personEdit/edited', value ? value.toISOString() : null) }
     }
   },
   methods: {
-    init () {
-      this.$db.rel.find('film').then(({ films }) => {
-        this.options.films = films.map(film => ({ value: film.id, label: film.title }))
-      })
-      this.$db.rel.find('species').then(({ species }) => {
-        this.options.species = species.map(species => ({ value: species.id, label: species.name }))
-      })
-      this.$db.rel.find('starship').then(({ starships }) => {
-        this.options.starships = starships.map(starship => ({ value: starship.id, label: starship.name }))
-      })
-      this.$db.rel.find('vehicle').then(({ vehicles }) => {
-        this.options.vehicles = vehicles.map(vehicle => ({ value: vehicle.id, label: vehicle.name }))
-      })
-      this.$db.rel.find('planet').then(({ planets }) => {
-        this.options.planets = planets.map(planet => ({ value: planet.id, label: planet.name }))
-      })
-      if (this.$route.params.id) {
-        this.$db.rel.find('person', [ this.$route.params.id ]).then(({ people }) => {
-          if (people[0]) {
-            this.$set(this, 'data', people[0])
-          } else {
-            this.$router.replace({ name: 'not_found' })
-          }
-        })
-      }
-    },
-    savePerson () {
-      if (!this.created) {
-        this.created = new Date()
-      }
-      this.edited = new Date()
-      this.$db.rel.save('person', this.data).then(() => {
-        this.$q.notify({ message: `Person ${this.data.name} updated!`, color: 'primary' })
-        this.$router.go(-1)
-      })
-    }
+    ...mapActions('personEdit', {
+      init: 'init',
+      savePerson: 'savePerson'
+    })
   }
 }
 </script>

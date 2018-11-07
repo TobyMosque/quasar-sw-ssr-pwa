@@ -3,6 +3,7 @@
 module.exports = function (ctx) {
   return {
     // app plugins (/src/plugins)
+    preFetch: true,
     plugins: [
       'axios',
       'database',
@@ -118,14 +119,7 @@ module.exports = function (ctx) {
     // animations: 'all' --- includes all animations
     animations: [],
     ssr: {
-      pwa: {
-        runtimeCaching: [
-          {
-            urlPattern: '/db/**',
-            handler: 'networkOnly'
-          }
-        ]
-      }
+      pwa: true
     },
     pwa: {
       // workboxPluginMode: 'InjectManifest',

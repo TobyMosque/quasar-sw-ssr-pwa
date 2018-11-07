@@ -33,27 +33,27 @@
         inset-delimiter
       >
         <q-list-header>Essential Links</q-list-header>
-        <q-item :to="{ name: 'people' }">
+        <q-item to="/people">
           <q-item-side letter="P" />
           <q-item-main label="People" />
         </q-item>
-        <q-item :to="{ name: 'films' }">
+        <q-item to="/films">
           <q-item-side letter="F" />
           <q-item-main label="Films" />
         </q-item>
-        <q-item :to="{ name: 'starships' }">
+        <q-item to="/starships">
           <q-item-side letter="S" />
           <q-item-main label="Starships" />
         </q-item>
-        <q-item :to="{ name: 'vehicles' }">
+        <q-item to="/vehicles">
           <q-item-side letter="V" />
           <q-item-main label="Vehicles" />
         </q-item>
-        <q-item :to="{ name: 'species' }">
+        <q-item to="/species">
           <q-item-side letter="S" />
           <q-item-main label="Species" />
         </q-item>
-        <q-item :to="{ name: 'planets' }">
+        <q-item to="/planets">
           <q-item-side letter="P" />
           <q-item-main label="Planets" />
         </q-item>

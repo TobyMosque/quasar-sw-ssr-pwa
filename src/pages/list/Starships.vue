@@ -12,7 +12,7 @@
       row-key="name"
     >
       <template slot="top-left" slot-scope="props">
-        <q-btn :to="{ name: 'vehicles-create' }" icon="create" color="primary">New Vehicle</q-btn>
+        <q-btn to="starships/create" icon="create" color="primary">New Starship</q-btn>
         <q-search class="q-pl-sm" hide-underline v-model="filter" />
       </template>
       <template slot="top-right" slot-scope="props">
@@ -44,8 +44,8 @@
             </q-list>
           </q-card-main>
           <q-card-actions>
-            <q-btn flat color="primary" label="Edit" icon="edit" :to="{ name: 'vehicles-edit', params: { id: props.row.id } }" />
-            <q-btn flat color="negative" label="Delete" icon="delete" @click="deleteVehicle(props.row)" />
+            <q-btn flat color="primary" label="Edit" icon="edit" :to="'starships/' + props.row.id" />
+            <q-btn flat color="negative" label="Delete" icon="delete" @click="deleteStarship(props.row)" />
           </q-card-actions>
         </q-card>
       </div>
@@ -62,14 +62,19 @@
 </style>
 
 <script>
+import starshipsList from '../../store/pages/list/starships'
+import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
+  preFetch ({ store, ssrContext }) {
+    if (!starshipsList.registered) {
+      starshipsList.registered = true
+      store.registerModule('starshipsList', starshipsList)
+    }
+    return store.dispatch('starshipsList/init')
+  },
   data () {
     return {
-      filter: '',
-      data: [],
-      rowsPerPage: [6, 12, 24, 36, 48, 72, 96],
-      pagination: { rowsPerPage: 12 },
       columns: [
         {
           name: 'name',
@@ -82,9 +87,9 @@ export default {
           field: row => row.model
         },
         {
-          name: 'vehicle_class',
-          label: 'Vehicle Class',
-          field: row => row.vehicle_class
+          name: 'starship_class',
+          label: 'Starship Class',
+          field: row => row.starship_class
         },
         {
           name: 'manufacturer',
@@ -117,6 +122,16 @@ export default {
           field: row => row.max_atmosphering_speed
         },
         {
+          name: 'hyperdrive_rating',
+          label: 'Hyperdrive Rating',
+          field: row => row.hyperdrive_rating
+        },
+        {
+          name: 'MGLT',
+          label: 'MGLT',
+          field: row => row.MGLT
+        },
+        {
           name: 'cargo_capacity',
           label: 'Cargo Capacity',
           field: row => row.cargo_capacity
@@ -130,31 +145,32 @@ export default {
     }
   },
   computed: {
+    filter: {
+      get () { return this.$store.state.starshipsList.filter },
+      set (value) { this.$store.commit('starshipsList/filter', value) }
+    },
+    data: {
+      get () { return this.$store.state.starshipsList.data },
+      set (value) { this.$store.commit('starshipsList/data', value) }
+    },
+    rowsPerPage: {
+      get () { return this.$store.state.starshipsList.rowsPerPage },
+      set (value) { this.$store.commit('starshipsList/rowsPerPage', value) }
+    },
+    pagination: {
+      get () { return this.$store.state.starshipsList.pagination },
+      set (value) { this.$store.commit('starshipsList/pagination', value) }
+    },
     visibleColumns: {
-      get () { return this.$store.state.columns.vehicles },
-      set (value) { this.$store.commit('columns/vehicles', value) }
+      get () { return this.$store.state.starshipsList.visibleColumns },
+      set (value) { this.$store.commit('starshipsList/visibleColumns', value) }
     }
   },
   methods: {
-    init () {
-      this.$db.rel.find('vehicle').then(({ vehicles }) => {
-        this.data = vehicles
-      })
-    },
-    deleteVehicle (vehicle) {
-      this.$q.dialog({
-        title: 'Delete Vehicle',
-        message: `Are you sure to delete the vehicle ${vehicle.name}?`,
-        ok: true,
-        cancel: true
-      }).then(() => {
-        return this.$db.rel.del('vehicle', vehicle)
-      }).then(() => {
-        let index = this.data.findIndex(item => item.id === vehicle.id)
-        this.data.splice(index, 1)
-        this.$q.notify({ message: `Vehicle ${vehicle.name} deleted!`, color: 'primary' })
-      })
-    }
+    ...mapActions('planetsList', {
+      init: 'init',
+      deleteStarship: 'deleteStarship'
+    })
   }
 }
 </script>
