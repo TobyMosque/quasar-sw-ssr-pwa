@@ -2,7 +2,6 @@ import axios from 'axios'
 import { uid, Loading } from 'quasar'
 
 export default {
-  registered: false,
   namespaced: true,
   state: {
     isSyncing: false,

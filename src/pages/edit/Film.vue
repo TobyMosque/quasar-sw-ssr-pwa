@@ -61,9 +61,9 @@ import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
   preFetch ({ store, currentRoute, ssrContext }) {
-    if (!filmEdit.registered) {
-      filmEdit.registered = true
-      store.registerModule('filmEdit', filmEdit)
+    console.log(store)
+    if (!store.state.filmEdit) {
+      store.registerModule('filmEdit', filmEdit, { ignoreIfExists: true })
     }
     return store.dispatch('filmEdit/init', currentRoute.params.id)
   },

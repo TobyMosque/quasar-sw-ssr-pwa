@@ -69,8 +69,7 @@ import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
   preFetch ({ store, currentRoute, ssrContext }) {
-    if (!vehicleEdit.registered) {
-      vehicleEdit.registered = true
+    if (!store.state.vehicleEdit) {
       store.registerModule('vehicleEdit', vehicleEdit)
     }
     return store.dispatch('vehicleEdit/init', currentRoute.params.id)

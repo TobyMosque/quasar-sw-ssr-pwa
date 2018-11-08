@@ -62,8 +62,7 @@ import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
   preFetch ({ store, ssrContext }) {
-    if (!speciesList.registered) {
-      speciesList.registered = true
+    if (!store.state.speciesList) {
       store.registerModule('speciesList', speciesList)
     }
     return store.dispatch('speciesList/init')

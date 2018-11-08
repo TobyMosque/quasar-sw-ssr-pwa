@@ -62,8 +62,7 @@ import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
   preFetch ({ store, ssrContext }) {
-    if (!planetsList.registered) {
-      planetsList.registered = true
+    if (!store.state.planetsList) {
       store.registerModule('planetsList', planetsList)
     }
     return store.dispatch('planetsList/init')

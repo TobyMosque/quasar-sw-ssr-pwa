@@ -1,5 +1,4 @@
 export default {
-  registered: false,
   namespaced: true,
   state: {},
   mutations: {},

@@ -75,8 +75,7 @@ import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
   preFetch ({ store, currentRoute, ssrContext }) {
-    if (!starshipEdit.registered) {
-      starshipEdit.registered = true
+    if (!store.state.starshipEdit) {
       store.registerModule('starshipEdit', starshipEdit)
     }
     return store.dispatch('starshipEdit/init', currentRoute.params.id)

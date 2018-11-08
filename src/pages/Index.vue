@@ -11,8 +11,7 @@ import indexModule from '../store/pages/index'
 export default {
   name: 'PageIndex',
   preFetch ({ store, ssrContext }) {
-    if (!indexModule.registered) {
-      indexModule.registered = true
+    if (!store.state.index) {
       store.registerModule('index', indexModule)
     }
     return store.dispatch('index/init')

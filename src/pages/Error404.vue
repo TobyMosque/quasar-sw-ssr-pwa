@@ -20,8 +20,7 @@ import error404Module from '../store/pages/error404'
 export default {
   name: 'Error404',
   preFetch ({ store, ssrContext }) {
-    if (!error404Module.registered) {
-      error404Module.registered = true
+    if (!store.state.error404) {
       store.registerModule('error404', error404Module)
     }
     return store.dispatch('error404/init')

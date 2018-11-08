@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import { Dialog, Notify } from 'quasar'
 export default {
-  registered: false,
   namespaced: true,
   state: {
     filter: '',

@@ -66,8 +66,7 @@ import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
   preFetch ({ store, currentRoute, ssrContext }) {
-    if (!speciesEdit.registered) {
-      speciesEdit.registered = true
+    if (!store.state.speciesEdit) {
       store.registerModule('speciesEdit', speciesEdit)
     }
     return store.dispatch('speciesEdit/init', currentRoute.params.id)

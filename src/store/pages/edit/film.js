@@ -32,7 +32,6 @@ let selected = {
   planets: []
 }
 export default {
-  registered: false,
   namespaced: true,
   state: {
     data: { ...data },

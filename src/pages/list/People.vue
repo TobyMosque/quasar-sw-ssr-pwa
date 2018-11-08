@@ -62,8 +62,7 @@ import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
   preFetch ({ store, ssrContext }) {
-    if (!peopleList.registered) {
-      peopleList.registered = true
+    if (!store.state.peopleList) {
       store.registerModule('peopleList', peopleList)
     }
     return store.dispatch('peopleList/init')

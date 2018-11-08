@@ -30,7 +30,6 @@ let selected = {
 }
 
 export default {
-  registered: false,
   namespaced: true,
   state: {
     data: { ...data },

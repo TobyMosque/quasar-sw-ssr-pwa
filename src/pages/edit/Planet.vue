@@ -63,8 +63,7 @@ import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
   preFetch ({ store, currentRoute, ssrContext }) {
-    if (!planetEdit.registered) {
-      planetEdit.registered = true
+    if (!store.state.planetEdit) {
       store.registerModule('planetEdit', planetEdit)
     }
     return store.dispatch('planetEdit/init', currentRoute.params.id)

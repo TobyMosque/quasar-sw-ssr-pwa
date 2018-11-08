@@ -67,8 +67,7 @@ import { mapActions } from 'vuex'
 export default {
   name: 'PageIndex',
   preFetch ({ store, ssrContext }) {
-    if (!vehiclesList.registered) {
-      vehiclesList.registered = true
+    if (!store.state.vehiclesList) {
       store.registerModule('vehiclesList', vehiclesList)
     }
     return store.dispatch('vehiclesList/init')
